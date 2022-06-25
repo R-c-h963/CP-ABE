@@ -7,8 +7,7 @@ public class UserKeyGen {
        SK_GID sk_gid = new SK_GID();
 
 
-
-
+//sss
        return sk_gid;
    }
 }
