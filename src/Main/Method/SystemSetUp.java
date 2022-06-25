@@ -50,56 +50,56 @@ public class SystemSetUp {
 
     /*根据选取的群生成CTA的PK与SK并存储*/
     public static void CTA_Key_Gen() throws IOException {
-        PK_CTA cta_pk = new PK_CTA();
-        SK_CTA cta_sk = new SK_CTA();
+        PK_CTA pk_cta = new PK_CTA();
+        SK_CTA sk_cta = new SK_CTA();
         PropertiesParameters curveParams = new PropertiesParameters();
         PairingParameters typeA1Params = curveParams.load("Parameters/a1.properties");
 
         Pairing pairing = PairingFactory.getPairing(typeA1Params);
         Element generator = pairing.getG1().newRandomElement().getImmutable();//生成元
         /*SK_CTA*/
-        cta_sk.a = pairing.getZr().newRandomElement().getImmutable();
-        cta_sk.alpha = pairing.getZr().newRandomElement().getImmutable();
-        cta_sk.X3 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 2, 4).getImmutable();
+        sk_cta.a = pairing.getZr().newRandomElement().getImmutable();
+        sk_cta.alpha = pairing.getZr().newRandomElement().getImmutable();
+        sk_cta.X3 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 2, 4).getImmutable();
         /*PK_CTA*/
-        cta_pk.P = pairing;
-        cta_pk.N = typeA1Params.getObject("n").toString();
-        cta_pk.g = ElementUtils.getGenerator(pairing, generator, typeA1Params, 0, 4).getImmutable();
-        cta_pk.g_a = cta_pk.g.powZn(cta_sk.a).getImmutable();
-        cta_pk.X2 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 1, 4).getImmutable();
-        cta_pk.X4 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 3, 4).getImmutable();
-        cta_pk.Y = pairing.pairing(cta_pk.g, cta_pk.g.powZn(cta_sk.alpha)).getImmutable();
+        pk_cta.P = pairing;
+        pk_cta.N = typeA1Params.getObject("n").toString();
+        pk_cta.g = ElementUtils.getGenerator(pairing, generator, typeA1Params, 0, 4).getImmutable();
+        pk_cta.g_a = pk_cta.g.powZn(sk_cta.a).getImmutable();
+        pk_cta.X2 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 1, 4).getImmutable();
+        pk_cta.X4 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 3, 4).getImmutable();
+        pk_cta.Y = pairing.pairing(pk_cta.g, pk_cta.g.powZn(sk_cta.alpha)).getImmutable();
 
         /*save PK_CTA  SK_CTA*/
-        byte[] cta_pk_byte, cta_sk_byte;
-        cta_pk_byte = SerializeUtils.serialize_PK_CTA(cta_pk);
-        Common.spitFile("Parameters/PK_CTA", cta_pk_byte);
+        byte[] pk_cta_byte, sk_cta_byte;
+        pk_cta_byte = SerializeUtils.serialize_PK_CTA(pk_cta);
+        Common.spitFile("Parameters/PK_CTA", pk_cta_byte);
 
-        cta_sk_byte = SerializeUtils.serialize_SK_CTA(cta_sk);
-        Common.spitFile("Parameters/SK_CTA", cta_sk_byte);
+        sk_cta_byte = SerializeUtils.serialize_SK_CTA(sk_cta);
+        Common.spitFile("Parameters/SK_CTA", sk_cta_byte);
 
         //TEST
-//        PK_CTA cta_pk_test = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
-//        println("g:"+cta_pk_test.g);
-//        println("g:"+cta_pk.g);
-//        println(cta_pk_test.P);
-//        println(cta_pk.P);
-//        println("g_a:"+cta_pk_test.g_a);
-//        println("g_a:"+cta_pk.g_a);
-//        println("X2:"+cta_pk.X2);
-//        println("X2:"+cta_pk_test.X2);
-//        println("X4:"+cta_pk_test.X4);
-//        println("X4"+cta_pk.X4);
-//        println("Y:"+cta_pk_test.Y);
-//        println("Y:"+cta_pk.Y);
+//        PK_CTA pk_cta_test = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
+//        println("g:"+pk_cta_test.g);
+//        println("g:"+pk_cta.g);
+//        println(pk_cta_test.P);
+//        println(pk_cta.P);
+//        println("g_a:"+pk_cta_test.g_a);
+//        println("g_a:"+pk_cta.g_a);
+//        println("X2:"+pk_cta.X2);
+//        println("X2:"+pk_cta_test.X2);
+//        println("X4:"+pk_cta_test.X4);
+//        println("X4"+pk_cta.X4);
+//        println("Y:"+pk_cta_test.Y);
+//        println("Y:"+pk_cta.Y);
 
-//        SK_CTA cta_sk_test = KeyLoad.load_SK_CTA("Parameters/SK_CTA", cta_pk);
-//        println(cta_sk.a);
-//        println(cta_sk_test.a);
-//        println(cta_sk.alpha);
-//        println(cta_sk_test.alpha);
-//        println(cta_sk.X3);
-//        println(cta_sk_test.X3);
+//        SK_CTA sk_cta_test = KeyLoad.load_SK_CTA("Parameters/SK_CTA", pk_cta);
+//        println(sk_cta.a);
+//        println(sk_cta_test.a);
+//        println(sk_cta.alpha);
+//        println(sk_cta_test.alpha);
+//        println(sk_cta.X3);
+//        println(sk_cta_test.X3);
 
     }
 

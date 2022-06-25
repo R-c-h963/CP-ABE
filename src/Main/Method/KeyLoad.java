@@ -46,14 +46,14 @@ public class KeyLoad {
     };
 
     /*读取并反序列化PK_AA*/
-    public static PK_AA load_PK_AA(String pk_aa_path, PK_CTA cta_pk) throws IOException {
+    public static PK_AA load_PK_AA(String pk_aa_path, PK_CTA pk_cta) throws IOException {
 
         PK_AA pk_aa = new PK_AA();
         PK_AA Immutable_pk = new PK_AA();
         byte[]  pk_aa_byte;
 
         pk_aa_byte = Common.suckFile(pk_aa_path);
-        pk_aa = SerializeUtils.unserialize_PK_AA(cta_pk,pk_aa_byte);
+        pk_aa = SerializeUtils.unserialize_PK_AA(pk_cta,pk_aa_byte);
 
         Immutable_pk.H_j = pk_aa.H_j;
 
@@ -61,14 +61,14 @@ public class KeyLoad {
     };
 
     /*读取并反序列化SK_AA*/
-    public static SK_AA load_SK_AA(String sk_aa_path, PK_CTA cta_pk) throws IOException {
+    public static SK_AA load_SK_AA(String sk_aa_path, PK_CTA pk_cta) throws IOException {
 
         SK_AA sk_aa = new SK_AA();
         SK_AA Immutable_sk = new SK_AA();
         byte[]  sk_aa_byte;
 
         sk_aa_byte = Common.suckFile(sk_aa_path);
-        sk_aa = SerializeUtils.unserialize_SK_AA(cta_pk,sk_aa_byte);
+        sk_aa = SerializeUtils.unserialize_SK_AA(pk_cta,sk_aa_byte);
 
         Immutable_sk.h_j = sk_aa.h_j;
         Immutable_sk.Z_j = sk_aa.Z_j;
@@ -76,14 +76,14 @@ public class KeyLoad {
     };
 
     /*读取并反序列化SK_GID_CTA*/
-    public static SK_GID_CTA load_SK_GID_CTA(String sk_gid_cta_path, PK_CTA cta_pk) throws IOException {
+    public static SK_GID_CTA load_SK_GID_CTA(String sk_gid_cta_path, PK_CTA pk_cta) throws IOException {
 
         SK_GID_CTA sk_gid_cta = new SK_GID_CTA();
         SK_GID_CTA Immutable_sk = new SK_GID_CTA();
         byte[]  sk_gid_cta_byte;
 
         sk_gid_cta_byte = Common.suckFile(sk_gid_cta_path);
-        sk_gid_cta = SerializeUtils.unserialize_SK_GID_CTA(cta_pk,sk_gid_cta_byte);
+        sk_gid_cta = SerializeUtils.unserialize_SK_GID_CTA(pk_cta,sk_gid_cta_byte);
 
         Immutable_sk.Gid = sk_gid_cta.Gid;
         Immutable_sk.K = sk_gid_cta.K;
@@ -92,15 +92,27 @@ public class KeyLoad {
     };
 
     /*读取并反序列化SK_GID_AA*/
-    public static SK_GID_AA load_SK_GID_AA(String sk_gid_aa_path, PK_CTA cta_pk) throws IOException {
+    public static SK_GID_AA load_SK_GID_AA(String sk_gid_aa_path, PK_CTA pk_cta) throws IOException {
 
         SK_GID_AA sk_gid_aa = new SK_GID_AA();
         byte[]  sk_gid_aa_byte;
 
         sk_gid_aa_byte = Common.suckFile(sk_gid_aa_path);
-        sk_gid_aa = SerializeUtils.unserialize_SK_GID_AA(cta_pk,sk_gid_aa_byte);
+        sk_gid_aa = SerializeUtils.unserialize_SK_GID_AA(pk_cta,sk_gid_aa_byte);
 
         return  sk_gid_aa;
+    };
+
+    /*读取并反序列化SK_GID*/
+    public static SK_GID load_SK_GID(String sk_gid_path, PK_CTA pk_cta) throws IOException {
+
+        SK_GID sk_gid = new SK_GID();
+        byte[]  sk_gid_byte;
+
+        sk_gid_byte = Common.suckFile(sk_gid_path);
+        sk_gid = SerializeUtils.unserialize_SK_GID(pk_cta,sk_gid_byte);
+
+        return  sk_gid;
     };
 
 }

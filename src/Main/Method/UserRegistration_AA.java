@@ -19,17 +19,17 @@ public class UserRegistration_AA {
 
         Plaintext_Attribute_Set test1 = new Plaintext_Attribute_Set();
         Plaintext_Attribute_Set test2 = new Plaintext_Attribute_Set();
-        test1.attribute_name="Name";
-        test2.attribute_name="Sex";
+        test1.attribute_name="Name-AA2";
+        test2.attribute_name="Sex-AA2";
         test1.attribute_value="Rch";
         test2.attribute_value="male";
         ArrayList<Plaintext_Attribute_Set> p_attr_list=new ArrayList<Plaintext_Attribute_Set>();
         p_attr_list.add(test1);
         p_attr_list.add(test2);
         try {
-            PK_CTA cta_pk = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
-            SK_AA sk_aa = KeyLoad.load_SK_AA("Parameters/SK_AA-1",cta_pk);
-            gen_sk_gid_aa(p_attr_list,sk_aa,cta_pk);
+            PK_CTA pk_cta = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
+            SK_AA sk_aa = KeyLoad.load_SK_AA("Parameters/SK_AA-1",pk_cta);
+            gen_sk_gid_aa(p_attr_list,sk_aa,pk_cta);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,11 +38,11 @@ public class UserRegistration_AA {
     }
 
 
-    public static SK_GID_AA gen_sk_gid_aa(ArrayList<Plaintext_Attribute_Set> p_attr_list, SK_AA sk_aa,PK_CTA cta_pk) throws IOException {
+    public static SK_GID_AA gen_sk_gid_aa(ArrayList<Plaintext_Attribute_Set> p_attr_list, SK_AA sk_aa,PK_CTA pk_cta) throws IOException {
         SK_GID_AA sk_gid_aa = new SK_GID_AA();
         sk_gid_aa.attr_list = new ArrayList<Ciphertext_Attribute_Set>();
         /*get user's random number t*/
-        Element t = load_User_t("Parameters/User1-t",cta_pk);
+        Element t = load_User_t("Parameters/User1-t",pk_cta);
 //        println(t);
 
         /*this loop is for each attribute */
@@ -54,16 +54,16 @@ public class UserRegistration_AA {
             sk_gid_aaj_i.attribute_name = p_attr_list.get(i).attribute_name;
             /*map plaintext attribute value to Zn*/
             byte[] b = p_attr_list.get(i).attribute_value.getBytes();
-            Element hash_attr_value = cta_pk.P.getZr().newElement().setFromHash(b, 0, b.length).getImmutable();
+            Element hash_attr_value = pk_cta.P.getZr().newElement().setFromHash(b, 0, b.length).getImmutable();
 
 //            println("hash:"+hash_attr_value);
 
             /*randomly select R based on X2*/
-            Element R = (cta_pk.X2.powZn(cta_pk.P.getZr().newRandomElement())).getImmutable();
+            Element R = (pk_cta.X2.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
             /*calculate ciphertext attribute value*/
-            Element sk_gid_aaj_val_i = (((cta_pk.g.powZn(hash_attr_value).mul(sk_aa.h_j)).powZn(t)).mul(R)).getImmutable();
-//            println("g:"+cta_pk.g);
-//            Element one = (cta_pk.g.powZn(hash_attr_value));
+            Element sk_gid_aaj_val_i = (((pk_cta.g.powZn(hash_attr_value).mul(sk_aa.h_j)).powZn(t)).mul(R)).getImmutable();
+//            println("g:"+pk_cta.g);
+//            Element one = (pk_cta.g.powZn(hash_attr_value));
 //            println("one:"+one);
 //            Element two = (one.mul(sk_aa.h_j));
 //            println("two:"+two);
@@ -81,14 +81,14 @@ public class UserRegistration_AA {
         sk_gid_aa_byte = SerializeUtils.serialize_SK_GID_AA(sk_gid_aa);
         Common.spitFile("Parameters/User1/SK_GID_AA1", sk_gid_aa_byte);
 
-        SK_GID_AA sk_gid_aa_test = KeyLoad.load_SK_GID_AA("Parameters/User1/SK_GID_AA1",cta_pk);
+        SK_GID_AA sk_gid_aa_test = KeyLoad.load_SK_GID_AA("Parameters/User1/SK_GID_AA1",pk_cta);
 
         for(int i=0;i<p_attr_list.size();i++)
         {
             println(sk_gid_aa.attr_list.get(i).attribute_name);
-            println(sk_gid_aa_test.attr_list.get(i).attribute_name);
+//            println(sk_gid_aa_test.attr_list.get(i).attribute_name);
             println(sk_gid_aa.attr_list.get(i).attribute_value);
-            println(sk_gid_aa_test.attr_list.get(i).attribute_value);
+//            println(sk_gid_aa_test.attr_list.get(i).attribute_value);
         }
 
         return sk_gid_aa;

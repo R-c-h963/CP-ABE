@@ -240,6 +240,53 @@ public class SerializeUtils {
         return sk;
     }
 
+    /*序列化SK_GID_AA*/
+    public static byte[] serialize_SK_GID(SK_GID sk_gid) {
+        ArrayList<Byte> arrlist = new ArrayList<Byte>();
+
+
+        serializeElement(arrlist, sk_gid.K);
+        serializeElement(arrlist, sk_gid.K_);
+
+        for(int i=0;i<sk_gid.attr_list.size();i++)
+        {
+            serializeString(arrlist, sk_gid.attr_list.get(i).attribute_name);
+            serializeElement(arrlist, sk_gid.attr_list.get(i).attribute_value);
+        }
+
+        return Byte_arr2byte_arr(arrlist);
+    }
+
+    /*反序列化 SK_GID*/
+    public static SK_GID unserialize_SK_GID(PK_CTA pk_cta, byte[] b) {
+        int offset = 0;
+        SK_GID sk = new SK_GID();
+        sk.K = pk_cta.P.getG1().newElement();
+        sk.K_ = pk_cta.P.getG1().newElement();
+        sk.attr_list = new ArrayList<Ciphertext_Attribute_Set>();
+        offset = unserializeElement(b, offset, sk.K);
+        offset = unserializeElement(b, offset, sk.K_);
+
+        while(offset<b.length)
+        {
+            Ciphertext_Attribute_Set sk_gid_aaj_i = new Ciphertext_Attribute_Set();
+            String attr_name= new String();
+            Element attr_val = pk_cta.P.getG1().newElement();
+
+            StringBuffer sb = new StringBuffer("");
+            offset = unserializeString(b, offset, sb);
+            attr_name = sb.substring(0);
+
+            offset = unserializeElement(b, offset, attr_val);
+            sk_gid_aaj_i.attribute_name=attr_name;
+            sk_gid_aaj_i.attribute_value=attr_val.getImmutable();
+            sk.attr_list.add(sk_gid_aaj_i);
+        }
+
+        return sk;
+    }
+
+
 
     /* Method has been test okay */
     /* potential problem: the number to be serialize is less than 2^31 */

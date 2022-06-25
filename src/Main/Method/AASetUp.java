@@ -23,11 +23,11 @@ public class AASetUp {
 
         PK_AA aa_pk=new PK_AA();
         SK_AA aa_sk=new SK_AA();
-        PK_CTA cta_pk = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
+        PK_CTA pk_cta = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
 
         /*generator h_j,Z_j based on g and X4*/
-        aa_sk.h_j =(cta_pk.g.powZn(cta_pk.P.getZr().newRandomElement())).getImmutable();
-        aa_sk.Z_j =(cta_pk.X4.powZn(cta_pk.P.getZr().newRandomElement())).getImmutable();
+        aa_sk.h_j =(pk_cta.g.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
+        aa_sk.Z_j =(pk_cta.X4.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
         /*calculate H_j*/
         aa_pk.H_j=aa_sk.h_j.mul(aa_sk.Z_j).getImmutable();
 
@@ -42,11 +42,11 @@ public class AASetUp {
         Common.spitFile("Parameters/SK_AA-"+AA_ID, aa_sk_byte);
 
         //TEST
-//        PK_AA aa_pk_test = KeyLoad.load_PK_AA("Parameters/PK_AA-"+AA_ID,cta_pk);
+//        PK_AA aa_pk_test = KeyLoad.load_PK_AA("Parameters/PK_AA-"+AA_ID,pk_cta);
 //        println(aa_pk_test.H_j);
 //        println(aa_pk.H_j);
 //
-//        SK_AA aa_sk_test = KeyLoad.load_SK_AA("Parameters/SK_AA-"+AA_ID,cta_pk);
+//        SK_AA aa_sk_test = KeyLoad.load_SK_AA("Parameters/SK_AA-"+AA_ID,pk_cta);
 //        println(aa_sk.h_j);
 //        println(aa_sk_test.h_j);
 //        println(aa_sk.Z_j);
