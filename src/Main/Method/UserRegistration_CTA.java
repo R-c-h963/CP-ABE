@@ -1,0 +1,68 @@
+package Main.Method;
+
+import Bsw.Common;
+import Bsw.SerializeUtils;
+import Main.KeyAndParameters.PK_CTA;
+import Main.KeyAndParameters.SK_CTA;
+import Main.KeyAndParameters.SK_GID_AA;
+import Main.KeyAndParameters.SK_GID_CTA;
+import it.unisa.dia.gas.jpbc.Element;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class UserRegistration_CTA {
+
+    public static void main(String[] args) {
+
+        try {
+            gen_sk_gid_cta();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public static SK_GID_CTA gen_sk_gid_cta() throws IOException {
+        SK_GID_CTA sk_gid_cta = new SK_GID_CTA();
+        sk_gid_cta.Gid = "1";
+
+        PK_CTA cta_pk = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
+        SK_CTA cta_sk = KeyLoad.load_SK_CTA("Parameters/SK_CTA", cta_pk);
+
+        /*randomly select t and calculate R R_*/
+        Element t = cta_pk.P.getZr().newRandomElement().getImmutable();
+        Element R = cta_sk.X3.powZn(cta_pk.P.getZr().newRandomElement()).getImmutable();
+        Element R_ = cta_sk.X3.powZn(cta_pk.P.getZr().newRandomElement()).getImmutable();
+        Element g_t = cta_pk.g.powZn(t).getImmutable();
+
+        /*Then calculate K and K_*/
+        sk_gid_cta.K = cta_pk.g_a.mul(g_t.powZn(cta_sk.a)).mul(R).getImmutable();
+        sk_gid_cta.K_ = g_t.mul(R_).getImmutable();
+
+        byte[] sk_gid_cta_byte;
+        sk_gid_cta_byte = SerializeUtils.serialize_SK_GID_CTA(sk_gid_cta);
+        Common.spitFile("Parameters/User"+sk_gid_cta.Gid+"SK_GID_CTA", sk_gid_cta_byte);
+
+
+        ArrayList<Byte> uid_T = new ArrayList<Byte>();
+        SerializeUtils.serializeElement(uid_T, t);
+        byte[] uid_t = SerializeUtils.Byte_arr2byte_arr(uid_T);
+        Common.spitFile("Parameters/User"+sk_gid_cta.Gid+"-t", uid_t);
+
+        println(t);
+//        SK_GID_CTA sk_gid_cta_test = KeyLoad.load_SK_GID_CTA("Parameters/User"+sk_gid_cta.Gid+"SK_GID_CTA", cta_pk);
+//        println(sk_gid_cta_test.Gid);
+//        println(sk_gid_cta.Gid);
+//        println(sk_gid_cta_test.K);
+//        println(sk_gid_cta.K);
+//        println(sk_gid_cta_test.K_);
+//        println(sk_gid_cta.K_);
+
+        return sk_gid_cta;
+    }
+
+    private static void println(Object o) {
+        System.out.println(o);
+    }
+}
