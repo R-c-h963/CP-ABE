@@ -31,8 +31,6 @@ public class AASetUp {
         /*calculate H_j*/
         aa_pk.H_j=aa_sk.h_j.mul(aa_sk.Z_j).getImmutable();
 
-
-
         /*save PK_AA   SK_AA*/
         byte[] aa_pk_byte, aa_sk_byte;
         aa_pk_byte = SerializeUtils.serialize_PK_AA(aa_pk);

@@ -115,4 +115,15 @@ public class KeyLoad {
         return  sk_gid;
     };
 
+    public static TK_GID load_TK_GID(String tk_gid_path, PK_CTA pk_cta) throws IOException {
+
+        TK_GID tk_gid = new TK_GID();
+        byte[]  tk_gid_byte;
+
+        tk_gid_byte = Common.suckFile(tk_gid_path);
+        tk_gid = SerializeUtils.unserialize_TK_GID(pk_cta,tk_gid_byte);
+
+        return tk_gid;
+    };
+
 }

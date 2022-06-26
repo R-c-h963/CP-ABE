@@ -30,7 +30,6 @@ public class UserRegistration_AA {
             PK_CTA pk_cta = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
             SK_AA sk_aa = KeyLoad.load_SK_AA("Parameters/SK_AA-1",pk_cta);
             gen_sk_gid_aa(p_attr_list,sk_aa,pk_cta);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
