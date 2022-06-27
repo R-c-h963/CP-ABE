@@ -1,93 +1,70 @@
 package Main.Method;
 
 import Bsw.Ciphertext;
-import Bsw.Police_node;
+import Bsw.Policy_node;
 
-import java.util.ArrayList;
+import java.io.IOException;
 
 public class Encrypt {
-    public static Ciphertext encryption(String message,String policy){
+
+    public static void main(String[] args) {
+
+        Policy_node root = gen_policy_tree("( ( A and B ) or C )");
+        println(root.attr);
+        println(root.left_children.attr);
+        println(root.right_children.attr);
+        println(root.left_children.left_children.attr);
+        println(root.left_children.right_children.attr);
+    }
+
+    public static Ciphertext encryption(String message, String policy) {
         Ciphertext ciphertext = new Ciphertext();
 
 
         return ciphertext;
     }
 
-    private static Police_node parsePolicyPostfix(String s) throws Exception {
-        String[] toks;
-        String tok;
-        ArrayList<Police_node> stack = new ArrayList<Police_node>();
-        Police_node root;
+    public static Policy_node gen_policy_tree(String policy) {
+        Policy_node root = new Policy_node();
+        String[] token = policy.split(" ");
 
-        toks = s.split(" ");
+        root.attr = "a";
 
-        int toks_cnt = toks.length;
-        for (int index = 0; index < toks_cnt; index++) {
-            int i, k, n;
+        Policy_node current = root;
 
-            tok = toks[index];
-            if (!tok.contains("of")) {
-                stack.add(baseNode(1, tok));
-            } else {
-                Police_node node;
+        for (int i = 0; i < token.length; i++) {
+            if (token[i].equals("("))
+            {
+                current.left_children = new Policy_node();
+                current.left_children.father = current;
+                current = current.left_children;
+            }
 
-                /* parse kof n node */
-                String[] k_n = tok.split("of");
-                k = Integer.parseInt(k_n[0]);
-                n = Integer.parseInt(k_n[1]);
+            else if(token[i].equals("and")||token[i].equals("or"))
+            {
+                current.attr = token[i];
+                current.right_children = new Policy_node();
+                current.right_children.father = current;
+                current = current.right_children;
+            }
 
-                if (k < 1) {
-                    System.out.println("error parsing " + s
-                            + ": trivially satisfied operator " + tok);
-                    return null;
-                } else if (k > n) {
-                    System.out.println("error parsing " + s
-                            + ": unsatisfiable operator " + tok);
-                    return null;
-                } else if (n == 1) {
-                    System.out.println("error parsing " + s
-                            + ": indentity operator " + tok);
-                    return null;
-                } else if (n > stack.size()) {
-                    System.out.println("error parsing " + s
-                            + ": stack underflow at " + tok);
-                    return null;
-                }
+            else if(token[i].equals(")"))
+            {
+                current = current.father;
+            }
 
-                /* pop n things and fill in children */
-                node = baseNode(k, null);
-                node.children = new Police_node[n];
-
-                for (i = n - 1; i >= 0; i--)
-                    node.children[i] = stack.remove(stack.size() - 1);
-
-                /* push result */
-                stack.add(node);
+            else
+            {
+                current.attr = token[i];
+                current.flag = 1;
+                current = current.father;
             }
         }
-
-        if (stack.size() > 1) {
-            System.out.println("error parsing " + s
-                    + ": extra node left on the stack");
-            return null;
-        } else if (stack.size() < 1) {
-            System.out.println("error parsing " + s + ": empty policy");
-            return null;
-        }
-
-        root = stack.get(0);
         return root;
     }
 
-    private static Police_node baseNode(int k, String s) {
-        Police_node p = new Police_node();
 
-        p.k = k;
-        if (!(s == null))
-            p.attr = s;
-        else
-            p.attr = null;
-        p.q = null;
-        return p;
+    private static void println(Object o) {
+        System.out.println(o);
     }
 }
