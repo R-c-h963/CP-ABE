@@ -49,8 +49,10 @@ public class UserRegistration_AA {
         {
             /*creat sk_gid_aaj_i*/
             Ciphertext_Attribute_Set sk_gid_aaj_i = new Ciphertext_Attribute_Set();
+
             /*get plaintext attribute name*/
             sk_gid_aaj_i.attribute_name = p_attr_list.get(i).attribute_name;
+
             /*map plaintext attribute value to Zn*/
             byte[] b = p_attr_list.get(i).attribute_value.getBytes();
             Element hash_attr_value = pk_cta.P.getZr().newElement().setFromHash(b, 0, b.length).getImmutable();
@@ -59,6 +61,7 @@ public class UserRegistration_AA {
 
             /*randomly select R based on X2*/
             Element R = (pk_cta.X2.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
+
             /*calculate ciphertext attribute value*/
             Element sk_gid_aaj_val_i = (((pk_cta.g.powZn(hash_attr_value).mul(sk_aa.h_j)).powZn(t)).mul(R)).getImmutable();
 //            println("g:"+pk_cta.g);
@@ -71,6 +74,7 @@ public class UserRegistration_AA {
 //            Element four = three.mul(R);
 //            println("four:"+four);
 //            println("sk_gid_aaj_i:"+sk_gid_aaj_i);
+
             /*creat sk_gid_aaj_i and save it to sk_gid_aaj*/
             sk_gid_aaj_i.attribute_value = sk_gid_aaj_val_i;
             sk_gid_aa.attr_list.add(sk_gid_aaj_i);

@@ -57,10 +57,12 @@ public class SystemSetUp {
 
         Pairing pairing = PairingFactory.getPairing(typeA1Params);
         Element generator = pairing.getG1().newRandomElement().getImmutable();//生成元
+
         /*SK_CTA*/
         sk_cta.a = pairing.getZr().newRandomElement().getImmutable();
         sk_cta.alpha = pairing.getZr().newRandomElement().getImmutable();
         sk_cta.X3 = ElementUtils.getGenerator(pairing, generator, typeA1Params, 2, 4).getImmutable();
+
         /*PK_CTA*/
         pk_cta.P = pairing;
         pk_cta.N = typeA1Params.getObject("n").toString();
