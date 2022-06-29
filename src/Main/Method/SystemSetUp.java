@@ -18,7 +18,7 @@ public class SystemSetUp {
 
     public static void main(String[] args) {
 
-        CurveParametersGen(4, 30);//子群数量与子群的阶
+        CurveParametersGen(4, 5);//子群数量与子群的阶
         try {
             CTA_Key_Gen();
         } catch (IOException e) {

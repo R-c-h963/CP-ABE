@@ -1,8 +1,7 @@
 package Main.Method;
 
-import Bsw.A_map_to_P;
-import Bsw.Ciphertext;
-import Bsw.Policy_node;
+import Bsw.*;
+import Main.KeyAndParameters.PK_AA;
 import Main.KeyAndParameters.PK_CTA;
 import it.unisa.dia.gas.jpbc.Element;
 
@@ -23,12 +22,17 @@ public class Encrypt {
         String policy =  policy_pre_treatment("(A and (D or (B and C)))");
         Policy_node root = gen_policy_tree(policy);
         gen_policy_matrix(root);
-        println(c);
 
+        try {
+            Ciphertext ciphertext=encryption("test","");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
-    public static Ciphertext encryption(String message, String policy) throws IOException{
+    public static Ciphertext encryption(String message, String policy) throws Exception{
+//    public static Ciphertext encryption() throws IOException{
         Ciphertext ciphertext = new Ciphertext();
 
         /*构建(A,ρ)*/
@@ -48,12 +52,37 @@ public class Encrypt {
         for(int i=0;i<c;i++)
         {
             v_element.add(pk_cta.P.getZr().newRandomElement().getImmutable());
+
         }
         Element s = v_element.get(0).getImmutable();
 
+
+        /* 构建Ax*v */
+        Element omega_x = pk_cta.P.getZr().newRandomElement();
+        ArrayList<Element> Omega_X = new ArrayList<Element>();
+        for(int i=0;i<map.size();i++)
+        {
+            omega_x.setToZero();
+            for(int j=0;j<map.get(i).attr_vector.size();j++)
+            {
+                omega_x = omega_x.add(v_element.get(j).mul(map.get(i).attr_vector.get(j)));
+            }
+            Omega_X.add(omega_x.getImmutable());
+        }
+
         /*构建c_tilde*/
-        Element seed = (pk_cta.g.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
+        Element seed = (pk_cta.Y.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
         Element c_tilde = seed.mul(pk_cta.Y.powZn(s)).getImmutable();
+
+        /*使用AES加密明文，秘钥种子为seed*/
+        byte[] m = message.getBytes();
+
+        byte[] cipher_text_aes = AESCoder.encrypt(seed.toBytes(), m);
+//        println(cipher_text_aes);
+//        byte[] plain_text_aes = AESCoder.decrypt(seed.toBytes(), cipher_text_aes);
+//        String text_string = new String(plain_text_aes);
+
+
 
         /*构建c_hat*/
         Element Z = (pk_cta.X4.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
@@ -61,10 +90,39 @@ public class Encrypt {
 
         /*构建c_x*/
         ArrayList<Element> C_x = new ArrayList<Element>();
+          /*此处仅使用了一个PK_AA的公钥，未自动匹配与属性对应的AA,后续做测试时可能需要修改*/
+        PK_AA pk_aa = KeyLoad.load_PK_AA("Parameters/SK_AA-1",pk_cta);
+        Element H_j = pk_aa.H_j.getImmutable();
+          /*此处仅未实现从策略中自动获取属性值，因此进行手动赋值处理*/
+        ArrayList<String> attr_value = new ArrayList<String>();
+        attr_value.add("1");//A=1
+        attr_value.add("4");//D=4
+        attr_value.add("2");//B=2
+        attr_value.add("3");//C=3
+
         for(int i=0;i<map.size();i++)
         {
+            Element Z_x = (pk_cta.X4.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
 
+            byte[] b = attr_value.get(i).getBytes();
+            Element hash_attr_value = pk_cta.P.getZr().newElement().setFromHash(b, 0, b.length).getImmutable();
+            Element g_tpx = pk_cta.g.powZn(s.mul(-1)).getImmutable();
+
+            Element c_x = (pk_cta.g_a.powZn(Omega_X.get(i))).mul(g_tpx.mul(H_j).powZn(s.mul(-1))).mul(Z_x);
+            C_x.add(c_x.getImmutable());
         }
+
+        ciphertext.map_size = String.valueOf(map.size());
+        ciphertext.attr_vector_size = String.valueOf(map.get(0).attr_vector.size());
+        ciphertext.c_tilde = c_tilde;
+        ciphertext.c_hat = c_hat;
+        ciphertext.c_x = C_x;
+        ciphertext.map = map;
+        ciphertext.ciphertext = cipher_text_aes;
+
+        byte[] ciphertext_byte;
+        ciphertext_byte = SerializeUtils.serialize_Ciphertext(ciphertext);
+        Common.spitFile("Parameters/User1/Ciphertext", ciphertext_byte);
 
         return ciphertext;
     }
@@ -97,11 +155,11 @@ public class Encrypt {
             }
         }
 
-//        for(int k=0;k<labled_node_list.size();k++)
-//        {
-//            println(labled_node_list.get(k).attr);
-//            println(labled_node_list.get(k).attr_vector);
-//        }
+        for(int k=0;k<labled_node_list.size();k++)
+        {
+            println(labled_node_list.get(k).attr);
+            println(labled_node_list.get(k).attr_vector);
+        }
     }
 
     /*将全括号表达式转化为树形结构,具体实现参考https://light-of-d.blog.csdn.net/article/details/121699643*/
