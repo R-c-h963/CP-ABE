@@ -309,7 +309,7 @@ public class SerializeUtils {
     public static TK_GID unserialize_TK_GID(PK_CTA pk_cta, byte[] b) {
         int offset = 0;
         TK_GID tk = new TK_GID();
-        tk.K = pk_cta.P.getG1().newElement();
+        tk .K = pk_cta.P.getG1().newElement();
         tk.K_ = pk_cta.P.getG1().newElement();
 
         tk.attr_list = new ArrayList<Ciphertext_Attribute_Set>();
@@ -344,6 +344,8 @@ public class SerializeUtils {
         serializeElement(arrlist, ciphertext.c_tilde);
         serializeElement(arrlist, ciphertext.c_hat);
 
+        /*通过循环依次序列化map数组中内容*/
+        /*因为A_map_to_P类中存在数组，因此要嵌套循环*/
         for(int i=0;i<Integer.valueOf(ciphertext.map_size);i++)
         {
             serializeString(arrlist, ciphertext.map.get(i).attribute_name);
@@ -353,6 +355,7 @@ public class SerializeUtils {
             }
         }
 
+        /*通过循环依次序列化c_x数组中内容*/
         for(int i=0;i<Integer.valueOf(ciphertext.map_size);i++)
         {
             serializeElement(arrlist, ciphertext.c_x.get(i));
@@ -365,34 +368,59 @@ public class SerializeUtils {
     }
 
     /*反序列化 Ciphertext*/
-//    public static Ciphertext unserialize_Ciphertext(PK_CTA pk_cta, byte[] b) {
-//        int offset = 0;
-//        TK_GID tk = new TK_GID();
-//        tk.K = pk_cta.P.getG1().newElement();
-//        tk.K_ = pk_cta.P.getG1().newElement();
-//
-//        tk.attr_list = new ArrayList<Ciphertext_Attribute_Set>();
-//        offset = unserializeElement(b, offset, tk.K);
-//        offset = unserializeElement(b, offset, tk.K_);
-//
-//        while(offset<b.length)
-//        {
-//            Ciphertext_Attribute_Set tk_gid_aaj_i = new Ciphertext_Attribute_Set();
-//            String attr_name= new String();
-//            Element attr_val = pk_cta.P.getG1().newElement();
-//
-//            StringBuffer sb = new StringBuffer("");
-//            offset = unserializeString(b, offset, sb);
-//            attr_name = sb.substring(0);
-//
-//            offset = unserializeElement(b, offset, attr_val);
-//            tk_gid_aaj_i.attribute_name=attr_name;
-//            tk_gid_aaj_i.attribute_value=attr_val.getImmutable();
-//            tk.attr_list.add(tk_gid_aaj_i);
-//        }
-//
-//        return tk;
-//    }
+    public static Ciphertext unserialize_Ciphertext(PK_CTA pk_cta, byte[] b) {
+        int offset = 0;
+        Ciphertext ciphertext = new Ciphertext();
+
+        /* 反序列化两个String，用于对后续数组的反序列化 */
+        StringBuffer map_size_sb = new StringBuffer("");
+        StringBuffer attr_vector_sb = new StringBuffer("");
+        offset = unserializeString(b, offset, map_size_sb);
+        offset = unserializeString(b, offset, attr_vector_sb);
+        ciphertext.map_size = map_size_sb.substring(0);
+        ciphertext.attr_vector_size = attr_vector_sb.substring(0);
+
+        /* 反序列化两个Element */
+        ciphertext.c_tilde= pk_cta.P.getGT().newElement();
+        ciphertext.c_hat= pk_cta.P.getG1().newElement();
+        offset = unserializeElement(b, offset, ciphertext.c_tilde);
+        offset = unserializeElement(b, offset, ciphertext.c_hat);
+
+        /* 反序列化两个数组 */
+        ciphertext.map = new ArrayList<A_map_to_P>();
+        ciphertext.c_x = new ArrayList<Element>();
+
+        for(int i=0;i<Integer.valueOf(ciphertext.map_size);i++)
+        {
+            A_map_to_P a_map_to_p =new A_map_to_P();
+
+            StringBuffer attribute_name_i_sb = new StringBuffer("");
+            offset = unserializeString(b, offset, attribute_name_i_sb);
+            a_map_to_p.attribute_name = attribute_name_i_sb.substring(0);
+            for (int j=0;j<Integer.valueOf(ciphertext.attr_vector_size);j++)
+            {
+                StringBuffer attr_vector_i_sb = new StringBuffer("");
+                offset = unserializeString(b, offset, attr_vector_i_sb);
+                String attr_vector_i = attr_vector_i_sb.substring(0);
+                a_map_to_p.attr_vector.add(Integer.parseInt(attr_vector_i));
+            }
+            ciphertext.map.add(a_map_to_p);
+        }
+
+        for(int i=0;i<Integer.valueOf(ciphertext.map_size);i++)
+        {
+            Element c_x_i = pk_cta.P.getG1().newElement();
+            offset = unserializeElement(b, offset, c_x_i);
+            ciphertext.c_x.add(c_x_i.getImmutable());
+        }
+
+        /*此处不需要反序列化，仅将byte数值赋值给ciphertext.ciphertext即可*/
+        offset=offset+4;
+        ciphertext.ciphertext = new byte[b.length-offset];
+        System.arraycopy(b,offset,ciphertext.ciphertext,0,b.length-offset);
+
+        return ciphertext;
+    }
 
 
     /* Method has been test okay */
