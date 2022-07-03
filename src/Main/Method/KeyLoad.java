@@ -1,6 +1,8 @@
 package Main.Method;
 
+import Bsw.Ciphertext;
 import Bsw.Common;
+import Bsw.Partly_Dec_Ciphertext;
 import Bsw.SerializeUtils;
 import Main.KeyAndParameters.*;
 
@@ -107,23 +109,65 @@ public class KeyLoad {
     public static SK_GID load_SK_GID(String sk_gid_path, PK_CTA pk_cta) throws IOException {
 
         SK_GID sk_gid = new SK_GID();
+        SK_GID Immutable_sk = new SK_GID();
         byte[]  sk_gid_byte;
 
         sk_gid_byte = Common.suckFile(sk_gid_path);
         sk_gid = SerializeUtils.unserialize_SK_GID(pk_cta,sk_gid_byte);
 
-        return  sk_gid;
+        Immutable_sk.attr_list = sk_gid.attr_list;
+        Immutable_sk.K = sk_gid.K.getImmutable();
+        Immutable_sk.K_= sk_gid.K_.getImmutable();
+        Immutable_sk.z = sk_gid.z.getImmutable();
+
+        return  Immutable_sk;
     };
 
+    /*读取并反序列化TK_GID*/
     public static TK_GID load_TK_GID(String tk_gid_path, PK_CTA pk_cta) throws IOException {
 
         TK_GID tk_gid = new TK_GID();
+        TK_GID Immutable_tk = new TK_GID();
         byte[]  tk_gid_byte;
 
         tk_gid_byte = Common.suckFile(tk_gid_path);
         tk_gid = SerializeUtils.unserialize_TK_GID(pk_cta,tk_gid_byte);
 
-        return tk_gid;
+        Immutable_tk.attr_list= tk_gid.attr_list;
+        Immutable_tk.K= tk_gid.K;
+        Immutable_tk.K_= tk_gid.K_;
+
+        return Immutable_tk;
     };
 
+    /*读取并反序列化Ciphertext*/
+    public static Ciphertext load_Ciphertext(String Ciphertext_path, PK_CTA pk_cta) throws IOException {
+        Ciphertext ciphertext = new Ciphertext();
+        Ciphertext Immutable_ciphertext = new Ciphertext();
+        byte[]  ciphertext_byte;
+        ciphertext_byte = Common.suckFile(Ciphertext_path);
+        ciphertext = SerializeUtils.unserialize_Ciphertext(pk_cta,ciphertext_byte);
+
+        Immutable_ciphertext.ciphertext =  ciphertext.ciphertext;
+        Immutable_ciphertext.map =  ciphertext.map;
+        Immutable_ciphertext.c_hat =  ciphertext.c_hat.getImmutable();
+        Immutable_ciphertext.c_x =  ciphertext.c_x;
+        Immutable_ciphertext.c_tilde =  ciphertext.c_tilde.getImmutable();
+        Immutable_ciphertext.attr_vector_size =  ciphertext.attr_vector_size;
+        Immutable_ciphertext.map_size =  ciphertext.map_size;
+        return  Immutable_ciphertext;
+    };
+
+    public static Partly_Dec_Ciphertext load_Partly_Dec_Ciphertext(String Partly_Dec_Ciphertext_path, PK_CTA pk_cta) throws IOException {
+        Partly_Dec_Ciphertext partly_dec_ciphertext = new Partly_Dec_Ciphertext();
+        Partly_Dec_Ciphertext Immutable_ciphertext = new Partly_Dec_Ciphertext();
+        byte[]  ciphertext_byte;
+        ciphertext_byte = Common.suckFile(Partly_Dec_Ciphertext_path);
+        partly_dec_ciphertext = SerializeUtils.unserialize_Partly_Dec_Ciphertext(pk_cta,ciphertext_byte);
+
+        Immutable_ciphertext.ciphertext =  partly_dec_ciphertext.ciphertext;
+        Immutable_ciphertext.c_tilde = partly_dec_ciphertext.c_tilde;
+        Immutable_ciphertext.ct_ = partly_dec_ciphertext.ct_;
+        return  Immutable_ciphertext;
+    };
 }

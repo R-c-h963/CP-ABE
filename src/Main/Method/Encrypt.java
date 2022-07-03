@@ -54,16 +54,16 @@ public class Encrypt {
 
 
         /* 构建Ax*v */
-        Element omega_x = pk_cta.P.getZr().newRandomElement();
-        ArrayList<Element> Omega_X = new ArrayList<Element>();
+        Element lambda_x = pk_cta.P.getZr().newRandomElement();
+        ArrayList<Element> Lambda_X = new ArrayList<Element>();
         for(int i=0;i<map.size();i++)
         {
-            omega_x.setToZero();
+            lambda_x.setToZero();
             for(int j=0;j<map.get(i).attr_vector.size();j++)
             {
-                omega_x = omega_x.add(v_element.get(j).mul(map.get(i).attr_vector.get(j)));
+                lambda_x = lambda_x.add(v_element.get(j).mul(map.get(i).attr_vector.get(j)));
             }
-            Omega_X.add(omega_x.getImmutable());
+            Lambda_X.add(lambda_x.getImmutable());
         }
 
         /*构建c_tilde*/
@@ -73,7 +73,7 @@ public class Encrypt {
         /*使用AES加密明文，秘钥种子为seed*/
         byte[] m = message.getBytes();
 
-        println("seed:"+seed);
+
         byte[] cipher_text_aes = AESCoder.encrypt(seed.toBytes(), m);
 
 //        println(cipher_text_aes);
@@ -93,10 +93,12 @@ public class Encrypt {
         Element H_j = pk_aa.H_j.getImmutable();
         /** 此处仅未实现从策略中自动获取属性值，因此进行手动赋值处理**/
         ArrayList<String> attr_value = new ArrayList<String>();
-        attr_value.add("1");//A=1
-        attr_value.add("4");//D=4
+        attr_value.add("A_value");//A
+        attr_value.add("D_value");//D
         attr_value.add("2");//B=2
         attr_value.add("3");//C=3
+
+
         /************************************/
         for(int i=0;i<map.size();i++)
         {
@@ -104,9 +106,11 @@ public class Encrypt {
 
             byte[] b = attr_value.get(i).getBytes();
             Element hash_attr_value = pk_cta.P.getZr().newElement().setFromHash(b, 0, b.length).getImmutable();
-            Element g_tpx = pk_cta.g.powZn(s.mul(-1)).getImmutable();
+//            println(hash_attr_value);
 
-            Element c_x = (pk_cta.g_a.powZn(Omega_X.get(i))).mul(g_tpx.mul(H_j).powZn(s.mul(-1))).mul(Z_x);
+            Element g_tpx = pk_cta.g.powZn(hash_attr_value).getImmutable();
+
+            Element c_x = ((pk_cta.g_a.powZn(Lambda_X.get(i))).div((g_tpx.mul(H_j)).powZn(s))).mul(Z_x);
             C_x.add(c_x.getImmutable());
         }
 
@@ -121,8 +125,17 @@ public class Encrypt {
         byte[] ciphertext_byte;
         ciphertext_byte = SerializeUtils.serialize_Ciphertext(ciphertext);
         Common.spitFile("Parameters/User1/Ciphertext", ciphertext_byte);
-//        Ciphertext ciphertext_test = SerializeUtils.unserialize_Ciphertext(pk_cta,ciphertext_byte);
 
+        //TEST
+        Element Y_S = pk_cta.Y.powZn(s).getImmutable();
+        Element Y_S_ = pk_cta.Y.powZn(s.mul(-1)).getImmutable();
+
+        println("Y_S_"+Y_S_);
+        println("seed:"+seed);
+//        byte[]  ciphertext_byte_test;
+//        ciphertext_byte_test = Common.suckFile("Parameters/User1/Ciphertext");
+//        Ciphertext ciphertext_test = SerializeUtils.unserialize_Ciphertext(pk_cta,ciphertext_byte_test);
+//
 //        println("ciphertext_test:"+ciphertext_test.map_size);
 //        println("ciphertext     :"+ciphertext.map_size);
 //        println("ciphertext_test:"+ciphertext_test.attr_vector_size);
@@ -142,7 +155,7 @@ public class Encrypt {
 //            println("ciphertext_test:"+ciphertext_test.map.get(i).attr_vector);
 //            println("ciphertext     :"+ciphertext.map.get(i).attr_vector);
 //        }
-
+//
 //        byte[] plain_text_aes = AESCoder.decrypt(seed.toBytes(), ciphertext_test.ciphertext);
 //        String text_string = new String(plain_text_aes);
 //        println(text_string);
@@ -177,11 +190,11 @@ public class Encrypt {
             }
         }
 
-//        for(int k=0;k<labled_node_list.size();k++)
-//        {
-//            println(labled_node_list.get(k).attr);
-//            println(labled_node_list.get(k).attr_vector);
-//        }
+        for(int k=0;k<labled_node_list.size();k++)
+        {
+            println(labled_node_list.get(k).attr);
+            println(labled_node_list.get(k).attr_vector);
+        }
     }
 
     /*将全括号表达式转化为树形结构,具体实现参考https://light-of-d.blog.csdn.net/article/details/121699643*/

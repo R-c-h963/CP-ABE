@@ -14,7 +14,7 @@ public class UserKeyGen {
     public static void main(String[] args) {
 
         try {
-//            gen_user_key("1");
+            gen_user_key("1");
             gen_user_transform_key("1");
         } catch (IOException e) {
             e.printStackTrace();
@@ -55,13 +55,11 @@ public class UserKeyGen {
 
        //TEST
        SK_GID sk_gid_test = KeyLoad.load_SK_GID("Parameters/User"+GID+"/SK_GID", pk_cta);
-       println(sk_gid.K);
-       println(sk_gid.K_);
-       println(sk_gid.z);
+
        for(int j=0;j<sk_gid_test.attr_list.size();j++)
        {
-           println(sk_gid_test.attr_list.get(j).attribute_name);
-           println(sk_gid_test.attr_list.get(j).attribute_value);
+           println("sk_gid :"+sk_gid_test.attr_list.get(j).attribute_name);
+           println("sk_gid :"+sk_gid_test.attr_list.get(j).attribute_value);
        }
 
        return sk_gid;
@@ -90,13 +88,13 @@ public class UserKeyGen {
 
         //TEST
 //        TK_GID tk_gid_test = KeyLoad.load_TK_GID("Parameters/User"+GID+"/TK_GID", pk_cta);
-        println(tk_gid.K);
-        println(tk_gid.K_);
+//        println(tk_gid.K.powZn(sk_gid.z));
+//        println(tk_gid.K_.powZn(sk_gid.z));
 
         for(int j=0;j<tk_gid.attr_list.size();j++)
         {
-            println(tk_gid.attr_list.get(j).attribute_name);
-            println(tk_gid.attr_list.get(j).attribute_value);
+            println("tk_gid :"+tk_gid.attr_list.get(j).attribute_name);
+            println("tk_gid :"+tk_gid.attr_list.get(j).attribute_value.powZn(sk_gid.z));
         }
 //        println(tk_gid_test.K);
 //        println(tk_gid_test.K_);

@@ -36,7 +36,7 @@ public class UserRegistration_CTA {
         Element g_t = pk_cta.g.powZn(t).getImmutable();
 
         /*Then calculate K and K_*/
-        sk_gid_cta.K = pk_cta.g_a.mul(g_t.powZn(sk_cta.a)).mul(R).getImmutable();
+        sk_gid_cta.K = (pk_cta.g.powZn(sk_cta.alpha)).mul(g_t.powZn(sk_cta.a)).mul(R).getImmutable();
         sk_gid_cta.K_ = g_t.mul(R_).getImmutable();
 
         byte[] sk_gid_cta_byte;

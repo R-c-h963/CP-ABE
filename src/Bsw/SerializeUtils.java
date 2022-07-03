@@ -422,7 +422,37 @@ public class SerializeUtils {
         return ciphertext;
     }
 
+    /*序列化 Partly_Dec_Ciphertext*/
+    public static byte[] serialize_Partly_Dec_Ciphertext(Partly_Dec_Ciphertext partly_dec_ciphertext) {
+        ArrayList<Byte> arrlist = new ArrayList<Byte>();
 
+        serializeElement(arrlist, partly_dec_ciphertext.c_tilde);
+        serializeElement(arrlist, partly_dec_ciphertext.ct_);
+
+        serializeUint32(arrlist, partly_dec_ciphertext.ciphertext.length);
+        byteArrListAppend(arrlist, partly_dec_ciphertext.ciphertext);
+
+        return Byte_arr2byte_arr(arrlist);
+    }
+
+    /*反序列化 Partly_Dec_Ciphertext*/
+    public static Partly_Dec_Ciphertext unserialize_Partly_Dec_Ciphertext(PK_CTA pk_cta, byte[] b) {
+        int offset = 0;
+        Partly_Dec_Ciphertext partly_dec_ciphertext = new Partly_Dec_Ciphertext();
+
+        /* 反序列化两个Element */
+        partly_dec_ciphertext.c_tilde = pk_cta.P.getGT().newElement();
+        partly_dec_ciphertext.ct_ = pk_cta.P.getGT().newElement();
+        offset = unserializeElement(b, offset, partly_dec_ciphertext.c_tilde);
+        offset = unserializeElement(b, offset, partly_dec_ciphertext.ct_);
+
+        /*此处不需要反序列化，仅将byte数值赋值给ciphertext.ciphertext即可*/
+        offset=offset+4;
+        partly_dec_ciphertext.ciphertext = new byte[b.length-offset];
+        System.arraycopy(b,offset,partly_dec_ciphertext.ciphertext,0,b.length-offset);
+
+        return partly_dec_ciphertext;
+    }
     /* Method has been test okay */
     /* potential problem: the number to be serialize is less than 2^31 */
     private static void serializeUint32(ArrayList<Byte> arrlist, int k) {

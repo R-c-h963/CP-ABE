@@ -15,29 +15,30 @@ import static Bsw.SerializeUtils.serializeString;
 
 public class UserRegistration_AA {
 
-    public static void main(String[] args) {
 
+/**此处数据仅用于测试，要生成不同属性或不同AA请在此处更改*/
+    public static void user_registration() {
         Plaintext_Attribute_Set test1 = new Plaintext_Attribute_Set();
         Plaintext_Attribute_Set test2 = new Plaintext_Attribute_Set();
-        test1.attribute_name="Name-AA2";
-        test2.attribute_name="Sex-AA2";
-        test1.attribute_value="Rch";
-        test2.attribute_value="male";
+        test1.attribute_name="A";
+        test2.attribute_name="D";
+        test1.attribute_value="A_value";
+        test2.attribute_value="D_value";
         ArrayList<Plaintext_Attribute_Set> p_attr_list=new ArrayList<Plaintext_Attribute_Set>();
         p_attr_list.add(test1);
-        p_attr_list.add(test2);
+        p_attr_list.add(test2); 
+
+        String SK_GID_AA_J = "SK_GID_AA1";
         try {
             PK_CTA pk_cta = KeyLoad.load_PK_CTA("Parameters/PK_CTA");
             SK_AA sk_aa = KeyLoad.load_SK_AA("Parameters/SK_AA-1",pk_cta);
-            gen_sk_gid_aa(p_attr_list,sk_aa,pk_cta);
+            gen_sk_gid_aa(p_attr_list,sk_aa,pk_cta,SK_GID_AA_J);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
-
-    public static SK_GID_AA gen_sk_gid_aa(ArrayList<Plaintext_Attribute_Set> p_attr_list, SK_AA sk_aa,PK_CTA pk_cta) throws IOException {
+    public static SK_GID_AA gen_sk_gid_aa(ArrayList<Plaintext_Attribute_Set> p_attr_list, SK_AA sk_aa,PK_CTA pk_cta,String SK_GID_AA_J) throws IOException {
         SK_GID_AA sk_gid_aa = new SK_GID_AA();
         sk_gid_aa.attr_list = new ArrayList<Ciphertext_Attribute_Set>();
         /*get user's random number t*/
@@ -63,7 +64,7 @@ public class UserRegistration_AA {
             Element R = (pk_cta.X2.powZn(pk_cta.P.getZr().newRandomElement())).getImmutable();
 
             /*calculate ciphertext attribute value*/
-            Element sk_gid_aaj_val_i = (((pk_cta.g.powZn(hash_attr_value).mul(sk_aa.h_j)).powZn(t)).mul(R)).getImmutable();
+            Element sk_gid_aaj_val_i = ((((pk_cta.g.powZn(hash_attr_value)).mul(sk_aa.h_j)).powZn(t)).mul(R)).getImmutable();
 //            println("g:"+pk_cta.g);
 //            Element one = (pk_cta.g.powZn(hash_attr_value));
 //            println("one:"+one);
@@ -82,17 +83,18 @@ public class UserRegistration_AA {
 
         byte[] sk_gid_aa_byte;
         sk_gid_aa_byte = SerializeUtils.serialize_SK_GID_AA(sk_gid_aa);
-        Common.spitFile("Parameters/User1/SK_GID_AA1", sk_gid_aa_byte);
+        Common.spitFile("Parameters/User1/SK_GID_AA/"+SK_GID_AA_J, sk_gid_aa_byte);
 
-        SK_GID_AA sk_gid_aa_test = KeyLoad.load_SK_GID_AA("Parameters/User1/SK_GID_AA1",pk_cta);
-
-        for(int i=0;i<p_attr_list.size();i++)
-        {
-            println(sk_gid_aa.attr_list.get(i).attribute_name);
-//            println(sk_gid_aa_test.attr_list.get(i).attribute_name);
-            println(sk_gid_aa.attr_list.get(i).attribute_value);
-//            println(sk_gid_aa_test.attr_list.get(i).attribute_value);
-        }
+        //TEST
+//        SK_GID_AA sk_gid_aa_test = KeyLoad.load_SK_GID_AA("Parameters/User1/SK_GID_AA/SK_GID_AA1",pk_cta);
+//
+//        for(int i=0;i<p_attr_list.size();i++)
+//        {
+//            println(sk_gid_aa.attr_list.get(i).attribute_name);
+////            println(sk_gid_aa_test.attr_list.get(i).attribute_name);
+//            println(sk_gid_aa.attr_list.get(i).attribute_value);
+////            println(sk_gid_aa_test.attr_list.get(i).attribute_value);
+//        }
 
         return sk_gid_aa;
     }
